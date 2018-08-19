@@ -5,6 +5,7 @@
 *.vcxproj.filters
 dependencies/*
 *.lib
+*.gif
 
 # User-specific files
 *.suo

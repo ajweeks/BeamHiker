@@ -136,7 +136,7 @@ float map(vec3 p)
 	//float result = smin(sphere(p, vec3(-1, 0, 0), 1), sphere(p, vec3(1, 0, 0), 1), 0.75);
 
 // Sphere matrix
-#if 0
+#if 1
 	float result = sphere(p, vec3(1, -0.8, 0), sin(time) * 0.1 + 0.4);
 	result = unionSDF(result, sphere(p, vec3(-1, -0.8, 0), cos(time) * 0.1 + 0.5));
 	float roundness = 0.05;
@@ -149,7 +149,7 @@ float map(vec3 p)
 	rot *= rotateXOP(-sin(time) * 0.05);
 	vec3 rotP = rot * p;
 	float s = sin(time) * 0.1 + 0.9;
-	// spheresresult = unionSDF(result, sphere(repeatOP(rotP * s, vec3(5.1, 3.5, 5.1)) / s, vec3(0, 0, 0), sin(time) * 0.1 + 0.59));
+	//result = unionSDF(result, sphere(repeatOP(rotP * s, vec3(5.1, 3.5, 5.1)) / s, vec3(0, 0, 0), sin(time) * 0.1 + 0.59));
 	result = unionSDF(result, torus(p, vec3(0, (sin(time * 3) * 0.2 + 0.8) - 2.5, 0), vec2(2.5, 0.5)));
 #else // Arch
 	float result = plane(p, vec3(0, -1, 0), normalize(vec4(0, 1, 0, 1)));
