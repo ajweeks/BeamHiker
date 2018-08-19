@@ -73,12 +73,10 @@ vec3 repeatOP(vec3 p, vec3 c)
 	return mod(p, c) - 0.5 * c;
 }
 
-// float blendOP(vec3 p)
-// {
-// 	float d1 = primitiveA(p);
-//     float d2 = primitiveB(p);
-//     return smin(d1, d2);
-// }
+float blendOP(float A, float B, float K)
+{
+    return smin(A, B, K);
+}
 
 float sphere(vec3 p, vec3 pos, float r)
 {
@@ -131,12 +129,27 @@ float torus(vec3 p, vec3 pos, vec2 t)
 	return length(q) - t.y;
 }
 
+float arch(vec3 p, vec3 size, float thickness)
+{
+	float arch = box(p, vec3(0, -size.y, 0),vec3(size.x, 2, size.z));
+	float innerRadius = 1;
+	float outerRadius = 1.2; // size.x ?
+	arch = differenceSDF(arch, cylinderZ(p - vec3(-1, -size.y, 0), vec3(innerRadius, 0, 0.5)));
+	arch = differenceSDF(arch, box(p, vec3(0, -size.y - 0.25, 0), vec3(1, 0.75, size.z+0.1)));
+
+	arch = intersectSDF(arch, 
+		unionSDF(cylinderZ(p - vec3(-size.x, -size.y - 0.4, 0), vec3(outerRadius, 1, size.y)),
+			box(p, vec3(0, -size.y - 0.4, 0), vec3(2, 1, size.z))));
+
+	return arch;
+}
+
 float map(vec3 p)
 {
 	//float result = smin(sphere(p, vec3(-1, 0, 0), 1), sphere(p, vec3(1, 0, 0), 1), 0.75);
 
 // Sphere matrix
-#if 1
+#if 0
 	float result = sphere(p, vec3(1, -0.8, 0), sin(time) * 0.1 + 0.4);
 	result = unionSDF(result, sphere(p, vec3(-1, -0.8, 0), cos(time) * 0.1 + 0.5));
 	float roundness = 0.05;
@@ -154,11 +167,7 @@ float map(vec3 p)
 #else // Arch
 	float result = plane(p, vec3(0, -1, 0), normalize(vec4(0, 1, 0, 1)));
 
-	float arch = box(p, vec3(0, -1, 0),vec3(1.2, 2, 0.4));
-	arch = differenceSDF(arch, cylinderZ(p - vec3(-1, -1, 0), vec3(1, 0, 0.5)));
-	arch = differenceSDF(arch, box(p, vec3(0, -1.25, 0), vec3(1, 0.75, 1)));
-	arch = intersectSDF(arch, 
-		unionSDF(cylinderZ(p - vec3(-1.2, -1.4, 0), vec3(1.2, 1, 1)), box(p, vec3(0, -1, 0), vec3(2, 1, 1))));
+	float arch = arch(p, vec3(1.2, 1, 2.0), 0.2);
 
 	result = unionSDF(result, arch);
 #endif
@@ -182,7 +191,7 @@ float computeSoftShadow(vec3 rayStart, vec3 rayDir, float minT, float maxT)
 
 		t += h;
 
-		if (res < 0.0001 || t > maxT)
+		if (res < EPSILON || t > maxT)
 		{
 			break;
 		}
@@ -329,7 +338,8 @@ vec3 calculatePixelColor(vec2 pixel)
 	{
 		vec3 rayDir = rayDir(45.0, resolution, pixel + random2f(i * 13.25165) * 0.5);
 		float eyeDist = 14;
-		float theta = time * 0.25;
+		//float theta = time * 0.25;
+		float theta = 0.45;
 
 	#if 1
 		mat4 eyeRotMat = mat4(
