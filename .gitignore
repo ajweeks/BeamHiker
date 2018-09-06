@@ -3,7 +3,6 @@
 *.cap
 *.vcxproj
 *.vcxproj.filters
-dependencies/*
 *.lib
 *.gif
 

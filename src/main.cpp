@@ -1,3 +1,4 @@
+#include "stdafx.hpp"
 
 #include <string>
 
@@ -77,9 +78,9 @@ int main()
 	u32 program = glCreateProgram();
 	glUseProgram(program);
 
-	static const char* vertFilePath = "shaders/vert.v";
-	static const char* fragFilePath = "shaders/frag.f";
-	if (!LoadShaders(program, vertFilePath, fragFilePath))
+	static std::string vertFilePath = RESOURCE_LOCATION + std::string("shaders/vert.v");
+	static std::string fragFilePath = RESOURCE_LOCATION + std::string("shaders/frag.f");
+	if (!LoadShaders(program, vertFilePath.c_str(), fragFilePath.c_str()))
 	{
 		PrintWarn("Failed to load shaders!\n");
 		return -1;
@@ -89,7 +90,7 @@ int main()
 	DWORD dwWaitStatus;
 	HANDLE dwChangeHandle;
 	{
-		std::string dir = curWorkingDirStr + "\\shaders\\";
+		std::string dir = curWorkingDirStr + "\\" + RESOURCE_LOCATION + "shaders";
 
 		dwChangeHandle = FindFirstChangeNotification(
 			dir.c_str(),
@@ -157,7 +158,7 @@ int main()
 		{
 			g_bReloadShader = false;
 			i32 newProgram = glCreateProgram();
-			if (LoadShaders(newProgram, vertFilePath, fragFilePath))
+			if (LoadShaders(newProgram, vertFilePath.c_str(), fragFilePath.c_str()))
 			{
 				glDeleteProgram(program);
 				program = newProgram;
